@@ -6,7 +6,6 @@ jQuery(document).ready(function () {
 		if (load === false) {
 			var data=jQuery('#'+divID).val();
 			jQuery("textarea#" + divID + "").html(data+email_signature.content);
-			jQuery("#rthd-new-followup-preview").trigger("click");
 			load = true;
 		}
 	});
