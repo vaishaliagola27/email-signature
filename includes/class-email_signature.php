@@ -19,6 +19,10 @@ if ( !class_exists( 'Email_Signature' ) ) {
 			//save image of advertisement
 			add_action( 'personal_options_update', array( $this, 'save_email_signature' ) );
 			add_action( 'edit_user_profile_update', array( $this, 'save_email_signature' ) );
+			
+			//enqueue js for display
+			add_action( 'admin_enqueue_scripts', array( $this, 'wp_admin_enqueue_scripts' ) );
+			add_action( 'wp_enqueue_scripts', array( $this, 'wp_admin_enqueue_scripts' ) );
 		}
 
 		/**
@@ -64,7 +68,33 @@ if ( !class_exists( 'Email_Signature' ) ) {
 			//update usermeta of email signature
 			update_usermeta( $user_id, '_email_signature', $_POST[ 'email_signature' ] );
 		}
-
+		
+		/**
+		 * enqueue script for email signature and display it in data
+		 * 
+		 * @param string $hook
+		 */
+		public function wp_admin_enqueue_scripts($hook){
+			//enqueue script
+			wp_register_script( 'rt_email-signature-js', \rtCamp\WP\rtEmailSignature\URL . '/assets/js/signature_display.js' );
+			wp_enqueue_script( 'rt_email-signature-js' );
+			
+			$args = array(
+			    'id' => 'followupcontent',
+			    'content' => html_entity_decode(get_usermeta( wp_get_current_user()->ID,'_email_signature'))
+			);
+			
+			/**
+			 * filter to change arguments for localize the script
+			 * 
+			 * @param string $var filter name
+			 * @param array $args array of arguments
+			 */
+			$args = apply_filters('rt_email_signature_arguments',$args);
+			
+			//localize the script for variable access
+			wp_localize_script( 'rt_email-signature-js', 'email_signature', $args );
+		}
 	}
 
 }
